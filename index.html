@@ -1,0 +1,4231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ChatLink</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: #111827;
+    overflow: hidden;
+}
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+.auth-screen {
+    position: fixed;
+    inset: 0;
+    background: #111827;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-box {
+    width: 390px;
+    max-width: calc(100% - 30px);
+    background: white;
+    padding: 34px;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+.auth-logo {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.auth-logo span {
+    color: #2f80ff;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    outline: none;
+    font-size: 14px;
+}
+
+.auth-box input:focus {
+    border-color: #2f80ff;
+}
+
+.auth-button {
+    width: 100%;
+    border: none;
+    padding: 13px;
+    border-radius: 10px;
+    background: #2f80ff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.auth-button:hover {
+    opacity: .92;
+}
+
+.auth-secondary {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.auth-message {
+    min-height: 18px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    height: 100vh;
+}
+
+.app.call-open {
+    grid-template-columns: 270px minmax(0, 1fr) 360px;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+    background: linear-gradient(180deg,#111827,#182231);
+    color: white;
+    padding: 24px 16px;
+    overflow-y: auto;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+
+.logo span {
+    color: #2f80ff;
+}
+
+.powered-by {
+    font-size: 11px;
+    font-weight: normal;
+    letter-spacing: .4px;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+
+.auth-powered-by {
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: -2px;
+    margin-bottom: 18px;
+}
+
+.empty-powered-by {
+    margin-top: 7px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.search {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid #374151;
+    background: #1f2937;
+    color: white;
+    margin-bottom: 8px;
+    outline: none;
+}
+
+.search:focus {
+    border-color: #2f80ff;
+}
+
+/* =========================================================
+   SEARCH RESULTS
+========================================================= */
+
+.search-results {
+    display: none;
+    margin-bottom: 18px;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.search-results.show {
+    display: block;
+}
+
+.search-label {
+    padding: 10px 10px 6px;
+    color: #94a3b8;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.search-status {
+    color: #94a3b8;
+    font-size: 12px;
+    padding: 12px;
+}
+
+.search-user {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-top: 1px solid #374151;
+}
+
+.search-user:hover {
+    background: #334155;
+}
+
+.search-user .avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+}
+
+.search-user-name {
+    font-weight: bold;
+    font-size: 13px;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-user-email {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #94a3b8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.menu {
+    margin-bottom: 30px;
+}
+
+.menu-item {
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+
+.menu-item:hover,
+.menu-item.active {
+    background: #1e4fa3;
+}
+
+.admin-menu {
+    display: none;
+}
+
+.section-title {
+    color: #94a3b8;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 20px 10px 10px;
+}
+
+.no-chats {
+    color: #64748b;
+    font-size: 13px;
+    padding: 12px 10px;
+    line-height: 1.5;
+}
+
+.contact {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.contact:hover,
+.contact.active {
+    background: #334155;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#60a5fa,#8b5cf6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-right: 12px;
+    color: white;
+}
+
+.contact-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.contact-name {
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.unread-badge {
+    margin-left: 8px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #2f80ff;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.contact-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.chat-person-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 3px;
+}
+
+.chat-person-status {
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.chat-person-time {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.typing-indicator {
+    font-size: 12px;
+    color: #2f80ff;
+    min-height: 15px;
+    margin-top: 2px;
+}
+
+.message-status {
+    font-size: 10px;
+    margin-top: 3px;
+    opacity: .72;
+    text-align: right;
+}
+.preview {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.account-area {
+    margin-top: 30px;
+    border-top: 1px solid #374151;
+    padding-top: 15px;
+}
+
+.logged-email {
+    color: #94a3b8;
+    font-size: 11px;
+    word-break: break-all;
+    margin-bottom: 10px;
+}
+
+.admin-badge {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.logout-button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #374151;
+    border-radius: 9px;
+    background: #1f2937;
+    color: white;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background: #374151;
+}
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+.chat {
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.chat-header {
+    height: 80px;
+    padding: 15px 25px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+}
+
+.profile-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#60a5fa,#8b5cf6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+}
+
+.online {
+    color: #16a34a;
+    font-size: 13px;
+}
+
+.header-buttons button {
+    border: none;
+    background: #f1f5f9;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-left: 6px;
+    font-size: 18px;
+}
+
+.header-buttons button:hover {
+    background: #dbeafe;
+}
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.messages {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.message {
+    max-width: 70%;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-radius: 18px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.received {
+    background: #e5e7eb;
+    color: #111827;
+    border-bottom-left-radius: 5px;
+}
+
+.sent {
+    background: #2f80ff;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.message-image {
+    max-width: 400px;
+    width: 100%;
+    border-radius: 15px;
+    margin-bottom: 8px;
+}
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.chat-input {
+    padding: 15px 20px;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-input input[type="text"] {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid #d1d5db;
+    border-radius: 25px;
+    outline: none;
+    font-size: 15px;
+}
+
+.chat-input input[type="text"]:disabled {
+    background: #f8fafc;
+}
+
+.icon-button {
+    border: none;
+    background: #f1f5f9;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    font-size: 19px;
+}
+
+.icon-button:hover {
+    background: #e2e8f0;
+}
+
+.send {
+    background: #2f80ff;
+    color: white;
+}
+
+/* =========================================================
+   EMPTY CHAT
+========================================================= */
+
+.empty-chat {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.empty-chat-icon {
+    font-size: 55px;
+    margin-bottom: 12px;
+}
+
+.empty-chat h2 {
+    color: #475569;
+    margin-bottom: 7px;
+}
+
+.home-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.home-action-button {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #2f80ff;
+    color: white;
+}
+
+.home-action-button.secondary {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.home-action-button:hover {
+    opacity: .92;
+}
+
+@media (max-width:650px) {
+    .home-actions {
+        width: 100%;
+        padding: 0 20px;
+    }
+
+    .home-action-button {
+        flex: 1 1 150px;
+    }
+}
+
+/* =========================================================
+   ADMIN
+========================================================= */
+
+.admin-panel {
+    height: 100%;
+    overflow-y: auto;
+    padding: 30px;
+}
+
+.admin-title {
+    font-size: 26px;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.admin-description {
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.admin-stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 180px;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.stat-number {
+    font-size: 30px;
+    font-weight: bold;
+    color: #111827;
+}
+
+.users-box {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.users-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: bold;
+}
+
+.user-row {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#60a5fa,#8b5cf6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-email {
+    color: #111827;
+    font-weight: bold;
+}
+
+.user-date {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.admin-note {
+    padding: 20px;
+    color: #64748b;
+    text-align: center;
+}
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+.video-panel {
+    background: #111827;
+    color: white;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+}
+
+.app.call-open .video-panel {
+    display: flex;
+}
+
+.call-info {
+    margin-bottom: 15px;
+}
+
+.video-container {
+    position: relative;
+    flex: 1;
+    background: #1f2937;
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+#remoteVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #263244;
+}
+
+.video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #94a3b8;
+}
+
+.video-placeholder .big-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#60a5fa,#8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 38px;
+    margin-bottom: 15px;
+}
+
+#localVideo {
+    position: absolute;
+    width: 120px;
+    height: 160px;
+    right: 15px;
+    bottom: 15px;
+    border-radius: 15px;
+    object-fit: cover;
+    background: #000;
+    border: 2px solid white;
+}
+
+.call-controls {
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 13px;
+}
+
+.call-btn {
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 50%;
+    background: #273244;
+    color: white;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.call-btn:hover {
+    background: #3b475a;
+}
+
+.end-call {
+    background: #ef4444;
+}
+
+.end-call:hover {
+    background: #dc2626;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width:1000px) {
+    .app {
+        grid-template-columns:220px minmax(0, 1fr);
+    }
+
+    .app.call-open {
+        grid-template-columns:220px minmax(0, 1fr) 300px;
+    }
+}
+
+@media (max-width:650px) {
+    .app {
+        grid-template-columns:1fr;
+    }
+
+    .sidebar {
+        display:none;
+    }
+
+    .message {
+        max-width:85%;
+    }
+}
+
+@media (max-width:650px) {
+    .app.call-open {
+        grid-template-columns: 1fr;
+    }
+
+    .app.call-open .video-panel {
+        position: fixed;
+        inset: 0;
+        z-index: 5000;
+        display: flex;
+    }
+
+    .video-container {
+        min-height: 0;
+    }
+}
+
+
+/* =========================================================
+   SIMPLE SETTINGS + DARK MODE
+========================================================= */
+.settings-panel {
+    height: 100%;
+    overflow-y: auto;
+    padding: 30px;
+}
+.settings-card {
+    max-width: 560px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 22px;
+    margin-bottom: 18px;
+}
+.settings-label {
+    display: block;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 9px;
+}
+.settings-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+.settings-input:focus { border-color: #2f80ff; }
+.settings-save {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 16px;
+    background: #2f80ff;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+.settings-message {
+    min-height: 18px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #16a34a;
+}
+.dark-mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+.dark-mode-toggle {
+    border: 1px solid #d1d5db;
+    background: #f1f5f9;
+    color: #111827;
+    border-radius: 999px;
+    padding: 9px 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+body.dark-mode { background: #0b1120; }
+body.dark-mode .chat { background: #0f172a; }
+body.dark-mode .chat-header,
+body.dark-mode .chat-input,
+body.dark-mode .settings-card,
+body.dark-mode .stat-card,
+body.dark-mode .users-box { background: #111827; border-color: #334155; color: #e5e7eb; }
+body.dark-mode .admin-title,
+body.dark-mode .settings-label,
+body.dark-mode .user-email,
+body.dark-mode .empty-chat h2 { color: #f8fafc; }
+body.dark-mode .admin-description,
+body.dark-mode .stat-label,
+body.dark-mode .admin-note,
+body.dark-mode .user-date,
+body.dark-mode .empty-chat,
+body.dark-mode .preview { color: #94a3b8; }
+body.dark-mode .received { background: #334155; color: #f8fafc; }
+body.dark-mode .sent { background: #2f80ff; color: white; }
+body.dark-mode .chat-input input[type="text"],
+body.dark-mode .settings-input { background: #1e293b; border-color: #475569; color: #f8fafc; }
+body.dark-mode .chat-input input[type="text"]:disabled { background: #111827; color: #64748b; }
+body.dark-mode .icon-button,
+body.dark-mode .header-buttons button,
+body.dark-mode .dark-mode-toggle,
+body.dark-mode .home-action-button.secondary { background: #1e293b; color: #f8fafc; border-color: #475569; }
+body.dark-mode .icon-button:hover,
+body.dark-mode .header-buttons button:hover,
+body.dark-mode .dark-mode-toggle:hover { background: #334155; }
+body.dark-mode .user-row,
+body.dark-mode .users-header { border-color: #334155; }
+body.dark-mode .admin-panel,
+body.dark-mode .settings-panel { color: #e5e7eb; }
+body.dark-mode .auth-box { background: #111827; color: #f8fafc; }
+body.dark-mode .auth-logo { color: #f8fafc; }
+body.dark-mode .auth-box input { background: #1e293b; border-color: #475569; color: #f8fafc; }
+body.dark-mode .auth-secondary { background: #334155; color: #f8fafc; }
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     LOGIN
+========================================================= -->
+
+<div class="auth-screen" id="authScreen">
+
+    <div class="auth-box">
+
+        <div class="auth-logo">
+            💬 <span>ChatLink</span>
+        </div>
+
+        <div class="auth-powered-by">Powered by MGT</div>
+
+        <div class="auth-subtitle">
+            Sign in or create your ChatLink account
+        </div>
+
+        <input
+            type="email"
+            id="authEmail"
+            placeholder="Email address"
+            autocomplete="email"
+        >
+
+        <input
+            type="password"
+            id="authPassword"
+            placeholder="Password"
+            autocomplete="current-password"
+            onkeydown="handleAuthEnter(event)"
+        >
+
+        <button
+            class="auth-button"
+            id="loginButton"
+            onclick="login()"
+        >
+            Log In
+        </button>
+
+        <button
+            class="auth-button auth-secondary"
+            onclick="signUp()"
+        >
+            Create Account
+        </button>
+
+        <div
+            class="auth-message"
+            id="authMessage"
+        ></div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     APP
+========================================================= -->
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            💬 <span>ChatLink</span>
+            <div class="powered-by">Powered by MGT</div>
+        </div>
+
+        <input
+            class="search"
+            id="searchInput"
+            placeholder="Search registered users..."
+            autocomplete="off"
+            oninput="searchContacts()"
+        >
+
+        <div
+            class="search-results"
+            id="searchResults"
+        ></div>
+
+        <div class="menu">
+
+            <div class="menu-item active" id="chatsMenu" onclick="showChats()">
+                💬 &nbsp; Chats
+            </div>
+
+            <div class="menu-item" id="settingsMenu" onclick="showSettings()">
+                ⚙️ &nbsp; Settings
+            </div>
+
+        </div>
+
+        <div class="section-title">
+            Recent Chats
+        </div>
+
+        <div id="recentChats">
+
+            <div class="no-chats">
+                No conversations yet.
+            </div>
+
+        </div>
+
+        <div class="account-area">
+
+            <div
+                class="admin-badge hidden"
+                id="adminBadge"
+            >
+                ADMIN
+            </div>
+
+            <div
+                class="logged-email"
+                id="loggedEmail"
+            ></div>
+
+            <button
+                class="logout-button"
+                onclick="logout()"
+            >
+                Log Out
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="chat">
+
+        <div
+            class="chat-header"
+            id="chatHeader"
+        >
+
+            <div class="profile">
+
+                <div
+                    class="profile-avatar"
+                    id="profileAvatar"
+                >
+                    ?
+                </div>
+
+                <div>
+
+                    <h3 id="chatName">
+                        Select a chat
+                    </h3>
+
+                    <div
+                        class="online"
+                        id="onlineStatus"
+                    ></div>
+                    <div
+                        class="typing-indicator"
+                        id="typingIndicator"
+                    ></div>
+
+                </div>
+
+            </div>
+
+            <div class="header-buttons hidden" id="chatHeaderActions">
+
+                <button
+                    title="Search"
+                    onclick="focusSearch()"
+                >
+                    🔍
+                </button>
+
+                <button
+                    title="Video call"
+                    onclick="startVideo()"
+                >
+                    📹
+                </button>
+
+                <button title="Call" onclick="startVoiceCall()">
+                    📞
+                </button>
+
+                <button title="More">
+                    ⋮
+                </button>
+
+            </div>
+
+        </div>
+
+        <div
+            class="messages"
+            id="messages"
+        >
+
+            <div class="empty-chat">
+
+                <div class="empty-chat-icon">
+                    💬
+                </div>
+
+                <h2>
+                    ChatLink
+                </h2>
+
+                <div class="empty-powered-by">Powered by MGT</div>
+
+                <p>
+                    Select a conversation to start chatting.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div
+            class="chat-input hidden"
+            id="chatInputArea"
+        >
+
+            <button
+                class="icon-button"
+                onclick="insertEmoji()"
+                title="Emoji"
+            >
+                😊
+            </button>
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Select a chat first..."
+                onkeydown="handleEnter(event)"
+                disabled
+            >
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+                hidden
+                onchange="sendImage(event)"
+            >
+
+            <button
+                class="icon-button"
+                onclick="openImagePicker()"
+                title="Send image"
+            >
+                🖼️
+            </button>
+
+            <button
+                class="icon-button send"
+                onclick="sendMessage()"
+                title="Send"
+            >
+                ➤
+            </button>
+
+        </div>
+
+    </main>
+
+    <aside class="video-panel" id="videoPanel">
+
+        <div class="call-info">
+
+            <h2 id="videoContactName">
+                ChatLink
+            </h2>
+
+            <p id="callStatus">
+                Select a contact
+            </p>
+
+        </div>
+
+        <div class="video-container">
+
+            <video
+                id="remoteVideo"
+                autoplay
+                playsinline
+            ></video>
+
+            <div
+                class="video-placeholder"
+                id="placeholder"
+            >
+
+                <div
+                    class="big-avatar"
+                    id="videoAvatar"
+                >
+                    ?
+                </div>
+
+                <h3>
+                    Video Call
+                </h3>
+
+                <p>
+                    Select a contact to start.
+                </p>
+
+            </div>
+
+            <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline
+            ></video>
+
+        </div>
+
+        <div class="call-controls">
+
+            <button
+                class="call-btn"
+                onclick="toggleMic()"
+                id="micButton"
+            >
+                🎤
+            </button>
+
+            <button
+                class="call-btn"
+                onclick="toggleCamera()"
+                id="cameraButton"
+            >
+                📹
+            </button>
+
+            <button
+                class="call-btn"
+                onclick="shareScreen()"
+            >
+                🖥️
+            </button>
+
+            <button
+                class="call-btn end-call"
+                onclick="endCall()"
+            >
+                📞
+            </button>
+
+        </div>
+
+    </aside>
+
+</div>
+
+<!-- =========================================================
+     SUPABASE
+========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const SUPABASE_URL =
+    "https://yimikqyhwlmrfbpymwop.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_tZ3xW2AqETtX0sGfUXFuBA_9Pybprp8";
+
+const chatDB =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+let currentUser = null;
+let currentProfile = null;
+let isAdmin = false;
+
+let activeContact = null;
+let activeContactId = null;
+
+let messageChannel = null;
+let profileChannel = null;
+let typingChannel = null;
+let typingStopTimer = null;
+let remoteTypingTimer = null;
+let lastTypingBroadcastAt = 0;
+let messageStatusColumnsAvailable = true;
+
+let localStream = null;
+
+let micEnabled = true;
+let cameraEnabled = true;
+
+let currentView = "chats";
+let hasConversations = false;
+
+let searchTimer = null;
+let searchRequestNumber = 0;
+let defaultContactProfile = null;
+
+const displayedMessageIds =
+    new Set();
+
+/* =========================================================
+   SIGN UP
+========================================================= */
+
+async function signUp() {
+
+    const email =
+        document
+            .getElementById("authEmail")
+            .value
+            .trim()
+            .toLowerCase();
+
+    const password =
+        document
+            .getElementById("authPassword")
+            .value;
+
+    const message =
+        document.getElementById(
+            "authMessage"
+        );
+
+    if (!email) {
+
+        message.textContent =
+            "Please enter your email.";
+
+        return;
+    }
+
+    if (!password) {
+
+        message.textContent =
+            "Please enter a password.";
+
+        return;
+    }
+
+    if (password.length < 6) {
+
+        message.textContent =
+            "Password must be at least 6 characters.";
+
+        return;
+    }
+
+    message.textContent =
+        "Creating account...";
+
+    const {
+        data,
+        error
+    } =
+        await chatDB.auth.signUp({
+
+            email: email,
+            password: password
+
+        });
+
+    if (error) {
+
+        message.textContent =
+            error.message;
+
+        return;
+    }
+
+    if (
+        data.user &&
+        data.session
+    ) {
+
+        currentUser =
+            data.user;
+
+        await createOrLoadProfile();
+
+        await enterChatLink();
+
+        return;
+    }
+
+    message.textContent =
+        "Account created. Check your email if confirmation is required.";
+}
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+async function login() {
+    const email = document.getElementById("authEmail").value.trim().toLowerCase();
+    const password = document.getElementById("authPassword").value;
+    const message = document.getElementById("authMessage");
+    const button = document.getElementById("loginButton");
+
+    if (!email || !password) {
+        message.textContent = "Enter your email and password.";
+        return;
+    }
+
+    message.textContent = "Logging in...";
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Logging in...";
+    }
+
+    try {
+        const { data, error } = await chatDB.auth.signInWithPassword({ email, password });
+
+        if (error) throw error;
+        if (!data || !data.user || !data.session) {
+            throw new Error("Authentication did not return a valid session.");
+        }
+
+        currentUser = data.user;
+
+        // Authentication is the only requirement for entering ChatLink.
+        // Profile, chats, and contacts load after the app is visible.
+        enterChatLink();
+        initializeLoggedInFeatures();
+
+    } catch (error) {
+        console.error("ChatLink login error:", error);
+        message.textContent = error?.message || "Login failed. Please try again.";
+        document.getElementById("authScreen").classList.remove("hidden");
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Log In";
+        }
+    }
+}
+
+function handleAuthEnter(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+        login();
+    }
+}
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+async function createOrLoadProfile() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    const {
+        data,
+        error
+    } =
+        await chatDB
+            .from("profiles")
+            .select("*")
+            .eq(
+                "id",
+                currentUser.id
+            )
+            .maybeSingle();
+
+    if (!error && data) {
+
+        currentProfile = data;
+
+        isAdmin =
+            data.is_admin === true;
+
+        updateAdminInterface();
+
+        return;
+    }
+
+    if (error) {
+
+        console.warn(
+            "Profile error:",
+            error.message
+        );
+    }
+
+    currentProfile = null;
+    isAdmin = false;
+
+    updateAdminInterface();
+}
+
+/* =========================================================
+   ADMIN INTERFACE
+========================================================= */
+
+function updateAdminInterface() {
+
+    const adminMenu =
+        document.getElementById(
+            "adminMenu"
+        );
+
+    const badge =
+        document.getElementById(
+            "adminBadge"
+        );
+
+    if (!adminMenu || !badge) {
+        return;
+    }
+
+    if (isAdmin) {
+
+        adminMenu.style.display =
+            "block";
+
+        badge.classList.remove(
+            "hidden"
+        );
+
+    } else {
+
+        adminMenu.style.display =
+            "none";
+
+        badge.classList.add(
+            "hidden"
+        );
+    }
+}
+
+/* =========================================================
+   ENTER
+========================================================= */
+
+function enterChatLink() {
+    if (!currentUser) return;
+
+    applyDarkMode(getSavedDarkModePreference());
+
+    // Show the application immediately after authentication succeeds.
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("authMessage").textContent = "";
+    document.getElementById("loggedEmail").textContent = currentUser.email || "";
+    document.getElementById("searchInput").value = "";
+    hideSearchResults();
+    showChats();
+}
+
+async function initializeLoggedInFeatures() {
+    if (!currentUser) return;
+
+    try {
+        await createOrLoadProfile();
+    } catch (error) {
+        console.warn("Profile initialization failed:", error);
+    }
+
+    // None of these secondary features can block successful login.
+    try { subscribeToMessages(); } catch (error) { console.warn("Message subscription failed:", error); }
+    try { await markPendingMessagesDelivered(); } catch (error) { console.warn("Delivery-state initialization failed:", error); }
+    try { await resolveDefaultContact(); } catch (error) { console.warn("Default contact lookup failed:", error); }
+    try { await loadRecentChats(); } catch (error) { console.warn("Recent chats failed:", error); }
+    try { if (currentView === "chats" && !activeContactId) await loadChatPeople(); } catch (error) { console.warn("Chats page refresh failed:", error); }
+    try {
+        if (isAdmin) subscribeToProfiles();
+    } catch (error) {
+        console.warn("Profile subscription failed:", error);
+    }
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function logout() {
+
+    endCall();
+
+    if (messageChannel) {
+
+        await chatDB.removeChannel(
+            messageChannel
+        );
+
+        messageChannel = null;
+    }
+
+    if (typingChannel) {
+        await chatDB.removeChannel(typingChannel);
+        typingChannel = null;
+    }
+
+    if (profileChannel) {
+
+        await chatDB.removeChannel(
+            profileChannel
+        );
+
+        profileChannel = null;
+    }
+
+    await chatDB.auth.signOut();
+
+    currentUser = null;
+    currentProfile = null;
+    applyDarkMode(false);
+    isAdmin = false;
+    defaultContactProfile = null;
+
+    activeContact = null;
+    activeContactId = null;
+
+    displayedMessageIds.clear();
+
+    document.getElementById(
+        "searchInput"
+    ).value = "";
+
+    hideSearchResults();
+
+    document.getElementById(
+        "recentChats"
+    ).innerHTML =
+        '<div class="no-chats">No conversations yet.</div>';
+
+    updateAdminInterface();
+
+    resetChat();
+
+    document.getElementById(
+        "loggedEmail"
+    ).textContent = "";
+
+    document.getElementById(
+        "authPassword"
+    ).value = "";
+
+    document
+        .getElementById("authScreen")
+        .classList.remove("hidden");
+}
+
+/* =========================================================
+   RESTORE SESSION
+========================================================= */
+
+async function restoreSession() {
+    try {
+        const { data, error } = await chatDB.auth.getSession();
+        if (error) throw error;
+
+        if (data && data.session && data.session.user) {
+            currentUser = data.session.user;
+            enterChatLink();
+            initializeLoggedInFeatures();
+        } else {
+            document.getElementById("authScreen").classList.remove("hidden");
+        }
+    } catch (error) {
+        console.error("Session restore error:", error);
+        document.getElementById("authMessage").textContent = error?.message || "Could not restore your session.";
+        document.getElementById("authScreen").classList.remove("hidden");
+    }
+}
+
+/* =========================================================
+   SHOW CHATS
+========================================================= */
+
+async function showChats() {
+    if (!currentUser) return;
+
+    currentView = "chats";
+    activeContact = null;
+    activeContactId = null;
+    displayedMessageIds.clear();
+    setActiveMenu("chatsMenu");
+
+    clearTypingIndicator();
+    if (typingChannel) {
+        try { await chatDB.removeChannel(typingChannel); } catch (error) { console.warn("Typing channel cleanup failed:", error); }
+        typingChannel = null;
+    }
+
+    document.getElementById("chatHeader").classList.add("hidden");
+    document.getElementById("chatInputArea").classList.add("hidden");
+    document.getElementById("chatHeaderActions").classList.add("hidden");
+
+    const input = document.getElementById("messageInput");
+    if (input) {
+        input.value = "";
+        input.disabled = true;
+        input.placeholder = "Select a chat first...";
+    }
+
+    document.querySelectorAll(".contact").forEach(function(contact) {
+        contact.classList.remove("active");
+    });
+
+    await loadChatPeople();
+}
+
+/* =========================================================
+   DEFAULT CONTACT / CHAT PEOPLE
+========================================================= */
+
+async function resolveDefaultContact() {
+    if (!currentUser) return null;
+
+    if (defaultContactProfile && defaultContactProfile.id) {
+        return defaultContactProfile;
+    }
+
+    // Resolve the REAL registered mgetgibbs profile from the existing database.
+    // No user ID is hard-coded and no demo/fake account is created.
+    const { data, error } = await chatDB
+        .from("profiles")
+        .select("id,email,display_name")
+        .or("display_name.ilike.mgetgibbs,email.ilike.mgetgibbs@%")
+        .limit(20);
+
+    if (error) {
+        console.warn("Could not resolve default contact:", error.message);
+        return null;
+    }
+
+    const profiles = data || [];
+    const exact = profiles.find(function(profile) {
+        const displayName = String(profile.display_name || "").trim().toLowerCase();
+        const emailLocal = String(profile.email || "").trim().toLowerCase().split("@")[0];
+        return displayName === "mgetgibbs" || emailLocal === "mgetgibbs";
+    });
+
+    if (!exact) {
+        console.warn("The registered mgetgibbs profile was not found.");
+        return null;
+    }
+
+    defaultContactProfile = exact;
+    return defaultContactProfile;
+}
+
+async function loadChatPeople() {
+    if (!currentUser || currentView !== "chats" || activeContactId) return;
+
+    const messagesHost = document.getElementById("messages");
+    if (!messagesHost) return;
+
+    messagesHost.innerHTML = `
+        <div class="admin-panel">
+            <div class="admin-title">CHATS</div>
+            <div class="admin-description">People and conversations available to you.</div>
+            <div class="no-chats">Loading people...</div>
+        </div>
+    `;
+
+    try {
+        const [defaultProfile, messageResult, profilesResult] = await Promise.all([
+            resolveDefaultContact(),
+            fetchRecentMessages(),
+            chatDB.from("profiles").select("id,email,display_name").neq("id", currentUser.id).order("display_name", { ascending: true })
+        ]);
+
+        if (messageResult.error) throw messageResult.error;
+        if (profilesResult.error) throw profilesResult.error;
+
+        const latestByUser = new Map();
+        const unreadByUser = new Map();
+
+        (messageResult.data || []).forEach(function(message) {
+            let otherUserId = null;
+            if (message.sender_id === currentUser.id) otherUserId = message.receiver_id;
+            else if (message.receiver_id === currentUser.id) otherUserId = message.sender_id;
+            if (!otherUserId || otherUserId === currentUser.id) return;
+
+            if (!latestByUser.has(otherUserId)) latestByUser.set(otherUserId, message);
+
+            if (messageStatusColumnsAvailable && message.receiver_id === currentUser.id && !message.read_at) {
+                unreadByUser.set(otherUserId, (unreadByUser.get(otherUserId) || 0) + 1);
+            }
+        });
+
+        const profileMap = new Map();
+        (profilesResult.data || []).forEach(function(profile) {
+            if (profile.id !== currentUser.id) profileMap.set(profile.id, profile);
+        });
+        if (defaultProfile && defaultProfile.id !== currentUser.id) profileMap.set(defaultProfile.id, defaultProfile);
+
+        // Conversations are listed newest-first, followed by registered users who have no conversation yet.
+        // The permanent mgetgibbs contact is always included without creating a duplicate conversation.
+        const conversationIds = Array.from(latestByUser.keys()).filter(function(id) { return profileMap.has(id); });
+        const remainingIds = Array.from(profileMap.keys()).filter(function(id) { return !latestByUser.has(id); });
+
+        remainingIds.sort(function(a, b) {
+            if (defaultProfile && a === defaultProfile.id) return -1;
+            if (defaultProfile && b === defaultProfile.id) return 1;
+            const pa = profileMap.get(a);
+            const pb = profileMap.get(b);
+            const na = String((pa && (pa.display_name || pa.email)) || "").toLowerCase();
+            const nb = String((pb && (pb.display_name || pb.email)) || "").toLowerCase();
+            return na.localeCompare(nb);
+        });
+
+        const orderedIds = conversationIds.concat(remainingIds);
+
+        messagesHost.innerHTML = "";
+        const wrapper = document.createElement("div");
+        wrapper.className = "admin-panel";
+
+        const title = document.createElement("div");
+        title.className = "admin-title";
+        title.textContent = "CHATS";
+
+        const description = document.createElement("div");
+        description.className = "admin-description";
+        description.textContent = "People and conversations available to you.";
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(description);
+
+        orderedIds.forEach(function(userId) {
+            const profile = profileMap.get(userId);
+            if (!profile) return;
+            wrapper.appendChild(createChatPerson(
+                profile,
+                latestByUser.get(userId) || null,
+                unreadByUser.get(userId) || 0
+            ));
+        });
+
+        if (!orderedIds.length) {
+            const empty = document.createElement("div");
+            empty.className = "no-chats";
+            empty.textContent = "No people available yet. Use Search registered users to find someone.";
+            wrapper.appendChild(empty);
+        }
+
+        messagesHost.appendChild(wrapper);
+    } catch (error) {
+        console.warn("Could not load Chats people list:", error);
+        messagesHost.innerHTML = `
+            <div class="admin-panel">
+                <div class="admin-title">CHATS</div>
+                <div class="admin-description">People and conversations available to you.</div>
+                <div class="no-chats">Could not load people right now. Recent Chats and user search are still available.</div>
+            </div>
+        `;
+    }
+}
+
+function createChatPerson(profile, latestMessage, unreadCount) {
+    const displayName = profile.display_name || profile.email || "ChatLink User";
+    const contact = document.createElement("div");
+    contact.className = "contact";
+    contact.dataset.contactId = profile.id;
+    contact.dataset.contact = displayName;
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = getInitials(displayName);
+
+    const info = document.createElement("div");
+    info.className = "contact-info";
+
+    const nameRow = document.createElement("div");
+    nameRow.className = "contact-name-row";
+
+    const name = document.createElement("div");
+    name.className = "contact-name";
+    name.textContent = displayName;
+    nameRow.appendChild(name);
+
+    if (unreadCount > 0) {
+        const badge = document.createElement("span");
+        badge.className = "unread-badge";
+        badge.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+        nameRow.appendChild(badge);
+    }
+
+    const identity = document.createElement("div");
+    identity.className = "preview";
+    identity.textContent = profile.email || "Registered ChatLink user";
+
+    const preview = document.createElement("div");
+    preview.className = "preview";
+    if (latestMessage && latestMessage.message) preview.textContent = latestMessage.message;
+    else if (latestMessage && latestMessage.image_url) preview.textContent = "🖼️ Image";
+    else preview.textContent = "Start a conversation";
+
+    const meta = document.createElement("div");
+    meta.className = "chat-person-meta";
+
+    const status = document.createElement("span");
+    status.className = "chat-person-status";
+    // The current backend has no persistent presence field for list rows, so do not fake online state.
+    status.textContent = latestMessage ? "Conversation available" : "Available to chat";
+    meta.appendChild(status);
+
+    if (latestMessage && latestMessage.created_at) {
+        const time = document.createElement("span");
+        time.className = "chat-person-time";
+        const messageDate = new Date(latestMessage.created_at);
+        const today = new Date();
+        time.textContent = messageDate.toDateString() === today.toDateString()
+            ? messageDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : messageDate.toLocaleDateString([], { month: "short", day: "numeric" });
+        meta.appendChild(time);
+    }
+
+    info.appendChild(nameRow);
+    info.appendChild(identity);
+    info.appendChild(preview);
+    info.appendChild(meta);
+    contact.appendChild(avatar);
+    contact.appendChild(info);
+
+    contact.addEventListener("click", function() {
+        openChat(profile.id, displayName, contact);
+    });
+
+    return contact;
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function getDarkModeStorageKey() {
+    return currentUser && currentUser.id
+        ? "chatlink-dark-mode-" + currentUser.id
+        : "chatlink-dark-mode";
+}
+
+function getSavedDarkModePreference() {
+    if (currentUser && currentUser.user_metadata && typeof currentUser.user_metadata.dark_mode === "boolean") {
+        return currentUser.user_metadata.dark_mode;
+    }
+
+    try {
+        return localStorage.getItem(getDarkModeStorageKey()) === "true";
+    } catch (error) {
+        return false;
+    }
+}
+
+function applyDarkMode(enabled) {
+    document.body.classList.toggle("dark-mode", enabled === true);
+
+    const toggle = document.getElementById("darkModeToggle");
+    if (toggle) {
+        toggle.textContent = enabled ? "ON" : "OFF";
+        toggle.setAttribute("aria-pressed", enabled ? "true" : "false");
+    }
+}
+
+async function toggleDarkMode() {
+    if (!currentUser) return;
+
+    const enabled = !document.body.classList.contains("dark-mode");
+    applyDarkMode(enabled);
+
+    try {
+        localStorage.setItem(getDarkModeStorageKey(), enabled ? "true" : "false");
+    } catch (error) {
+        console.warn("Could not save local dark mode preference:", error);
+    }
+
+    try {
+        const { data, error } = await chatDB.auth.updateUser({
+            data: { dark_mode: enabled }
+        });
+        if (error) throw error;
+        if (data && data.user) currentUser = data.user;
+    } catch (error) {
+        console.warn("Could not sync dark mode preference:", error);
+    }
+}
+
+function showSettings() {
+    if (!currentUser) return;
+
+    currentView = "settings";
+    activeContact = null;
+    activeContactId = null;
+    displayedMessageIds.clear();
+    setActiveMenu("settingsMenu");
+    clearTypingIndicator();
+
+    if (typingChannel) {
+        try { chatDB.removeChannel(typingChannel); } catch (error) { console.warn("Typing channel cleanup failed:", error); }
+        typingChannel = null;
+    }
+
+    document.getElementById("chatHeader").classList.add("hidden");
+    document.getElementById("chatInputArea").classList.add("hidden");
+    document.getElementById("chatHeaderActions").classList.add("hidden");
+
+    const messages = document.getElementById("messages");
+    messages.innerHTML = "";
+
+    const panel = document.createElement("div");
+    panel.className = "settings-panel";
+
+    const title = document.createElement("div");
+    title.className = "admin-title";
+    title.textContent = "Settings";
+
+    const description = document.createElement("div");
+    description.className = "admin-description";
+    description.textContent = "Manage your ChatLink preferences.";
+
+    const nameCard = document.createElement("div");
+    nameCard.className = "settings-card";
+    nameCard.innerHTML = `
+        <label class="settings-label" for="settingsDisplayName">Display Name</label>
+        <input class="settings-input" id="settingsDisplayName" type="text" maxlength="80" autocomplete="name">
+        <button class="settings-save" type="button" onclick="saveDisplayName()">Save Changes</button>
+        <div class="settings-message" id="displayNameMessage"></div>
+    `;
+
+    const darkCard = document.createElement("div");
+    darkCard.className = "settings-card";
+    darkCard.innerHTML = `
+        <div class="dark-mode-row">
+            <div>
+                <div class="settings-label" style="margin-bottom:4px;">Dark Mode</div>
+                <div class="admin-description" style="margin-bottom:0;">Use ChatLink with a dark appearance.</div>
+            </div>
+            <button class="dark-mode-toggle" id="darkModeToggle" type="button" onclick="toggleDarkMode()" aria-pressed="false">OFF</button>
+        </div>
+    `;
+
+    panel.appendChild(title);
+    panel.appendChild(description);
+    panel.appendChild(nameCard);
+    panel.appendChild(darkCard);
+    messages.appendChild(panel);
+
+    const input = document.getElementById("settingsDisplayName");
+    if (input) input.value = (currentProfile && currentProfile.display_name) || "";
+    applyDarkMode(document.body.classList.contains("dark-mode"));
+}
+
+async function saveDisplayName() {
+    if (!currentUser) return;
+
+    const input = document.getElementById("settingsDisplayName");
+    const message = document.getElementById("displayNameMessage");
+    if (!input || !message) return;
+
+    const displayName = input.value.trim();
+    if (!displayName) {
+        message.style.color = "#dc2626";
+        message.textContent = "Display Name cannot be empty.";
+        return;
+    }
+
+    message.style.color = "#64748b";
+    message.textContent = "Saving...";
+
+    try {
+        const { data, error } = await chatDB
+            .from("profiles")
+            .update({ display_name: displayName })
+            .eq("id", currentUser.id)
+            .select("*")
+            .single();
+
+        if (error) throw error;
+
+        currentProfile = data;
+        if (defaultContactProfile && defaultContactProfile.id === currentUser.id) {
+            defaultContactProfile = data;
+        }
+
+        message.style.color = "#16a34a";
+        message.textContent = "Display name updated successfully.";
+
+        try { await loadRecentChats(); } catch (error) { console.warn("Recent chats refresh failed:", error); }
+        try { await resolveDefaultContact(); } catch (error) { console.warn("Default contact refresh failed:", error); }
+    } catch (error) {
+        console.error("Display name update failed:", error);
+        message.style.color = "#dc2626";
+        message.textContent = error && error.message ? error.message : "Could not update display name.";
+    }
+}
+
+/* =========================================================
+   ADMIN PANEL
+========================================================= */
+
+async function showAdminPanel() {
+
+    if (!isAdmin) {
+        return;
+    }
+
+    currentView = "admin";
+
+    setActiveMenu(
+        "adminMenu"
+    );
+
+    document
+        .getElementById("chatHeader")
+        .classList.add("hidden");
+
+    document
+        .getElementById("chatInputArea")
+        .classList.add("hidden");
+
+    const messages =
+        document.getElementById(
+            "messages"
+        );
+
+    messages.innerHTML = `
+
+        <div class="admin-panel">
+
+            <div class="admin-title">
+                Registered Users
+            </div>
+
+            <div class="admin-description">
+                ChatLink accounts registered in your app.
+            </div>
+
+            <div class="admin-stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Total Registered Users
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="registeredCount"
+                    >
+                        ...
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="users-box">
+
+                <div class="users-header">
+                    Users
+                </div>
+
+                <div id="registeredUsers">
+
+                    <div class="admin-note">
+                        Loading registered users...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    await loadRegisteredUsers();
+}
+
+/* =========================================================
+   LOAD REGISTERED USERS
+========================================================= */
+
+async function loadRegisteredUsers() {
+
+    if (!isAdmin) {
+        return;
+    }
+
+    const container =
+        document.getElementById(
+            "registeredUsers"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const {
+        data,
+        error
+    } =
+        await chatDB
+            .from("profiles")
+            .select(
+                "id,email,display_name,created_at,is_admin"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+    if (error) {
+
+        console.error(error);
+
+        const count =
+            document.getElementById(
+                "registeredCount"
+            );
+
+        if (count) {
+            count.textContent = "—";
+        }
+
+        container.innerHTML = `
+
+            <div class="admin-note">
+                Registered users could not be loaded.
+            </div>
+
+        `;
+
+        return;
+    }
+
+    const count =
+        document.getElementById(
+            "registeredCount"
+        );
+
+    if (count) {
+        count.textContent =
+            data ? data.length : 0;
+    }
+
+    container.innerHTML = "";
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="admin-note">
+                No registered users yet.
+            </div>
+
+        `;
+
+        return;
+    }
+
+    data.forEach(
+        function(user) {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "user-row";
+
+            const avatar =
+                document.createElement(
+                    "div"
+                );
+
+            avatar.className =
+                "user-avatar";
+
+            avatar.textContent =
+                getInitials(
+                    user.display_name ||
+                    user.email ||
+                    "User"
+                );
+
+            const details =
+                document.createElement(
+                    "div"
+                );
+
+            details.className =
+                "user-details";
+
+            const email =
+                document.createElement(
+                    "div"
+                );
+
+            email.className =
+                "user-email";
+
+            email.textContent =
+                user.display_name
+                    ? user.display_name +
+                      " — " +
+                      user.email
+                    : user.email ||
+                      "ChatLink User";
+
+            const date =
+                document.createElement(
+                    "div"
+                );
+
+            date.className =
+                "user-date";
+
+            const joined =
+                user.created_at
+                    ? new Date(
+                        user.created_at
+                      )
+                    : null;
+
+            date.textContent =
+                joined
+                    ? "Registered: " +
+                      joined.toLocaleString()
+                    : "Registration date unavailable";
+
+            if (user.is_admin) {
+                date.textContent +=
+                    " • Admin";
+            }
+
+            details.appendChild(email);
+            details.appendChild(date);
+
+            row.appendChild(avatar);
+            row.appendChild(details);
+
+            container.appendChild(row);
+        }
+    );
+}
+
+/* =========================================================
+   PROFILE REALTIME
+========================================================= */
+
+function subscribeToProfiles() {
+
+    if (!isAdmin) {
+        return;
+    }
+
+    if (profileChannel) {
+        chatDB.removeChannel(
+            profileChannel
+        );
+    }
+
+    profileChannel =
+        chatDB
+            .channel(
+                "mgt-chatlink-profile-admin"
+            )
+            .on(
+
+                "postgres_changes",
+
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "profiles"
+                },
+
+                function() {
+
+                    if (
+                        currentView ===
+                        "admin"
+                    ) {
+
+                        loadRegisteredUsers();
+                    }
+                }
+
+            )
+            .subscribe();
+}
+
+/* =========================================================
+   MENU
+========================================================= */
+
+function setActiveMenu(id) {
+
+    document
+        .querySelectorAll(
+            ".menu-item"
+        )
+        .forEach(
+            function(item) {
+
+                item.classList.remove(
+                    "active"
+                );
+            }
+        );
+
+    const item =
+        document.getElementById(
+            id
+        );
+
+    if (item) {
+        item.classList.add(
+            "active"
+        );
+    }
+}
+
+/* =========================================================
+   SEARCH REGISTERED USERS
+========================================================= */
+
+function searchContacts() {
+
+    clearTimeout(
+        searchTimer
+    );
+
+    const search =
+        document
+            .getElementById(
+                "searchInput"
+            )
+            .value
+            .trim();
+
+    if (!search) {
+
+        hideSearchResults();
+        return;
+    }
+
+    showSearchLoading();
+
+    searchTimer =
+        setTimeout(
+            function() {
+
+                searchRegisteredUsers(
+                    search
+                );
+
+            },
+            300
+        );
+}
+
+async function searchRegisteredUsers(searchText) {
+
+    if (!currentUser) {
+        return;
+    }
+
+    const requestNumber =
+        ++searchRequestNumber;
+
+    const cleanSearch =
+        searchText
+            .trim()
+            .replace(/[%_,()]/g, " ");
+
+    if (!cleanSearch) {
+
+        hideSearchResults();
+        return;
+    }
+
+    const {
+        data,
+        error
+    } =
+        await chatDB
+            .from("profiles")
+            .select(
+                "id,email,display_name"
+            )
+            .neq(
+                "id",
+                currentUser.id
+            )
+            .or(
+                `email.ilike.%${cleanSearch}%,display_name.ilike.%${cleanSearch}%`
+            )
+            .limit(20);
+
+    if (
+        requestNumber !==
+        searchRequestNumber
+    ) {
+        return;
+    }
+
+    if (error) {
+
+        console.error(
+            "Search error:",
+            error
+        );
+
+        showSearchMessage(
+            "Could not search registered users."
+        );
+
+        return;
+    }
+
+    renderSearchResults(
+        data || []
+    );
+}
+
+function showSearchLoading() {
+
+    const results =
+        document.getElementById(
+            "searchResults"
+        );
+
+    results.classList.add(
+        "show"
+    );
+
+    results.innerHTML = `
+
+        <div class="search-label">
+            Search Results
+        </div>
+
+        <div class="search-status">
+            Searching registered users...
+        </div>
+
+    `;
+}
+
+function showSearchMessage(message) {
+
+    const results =
+        document.getElementById(
+            "searchResults"
+        );
+
+    results.classList.add(
+        "show"
+    );
+
+    results.innerHTML = "";
+
+    const label =
+        document.createElement(
+            "div"
+        );
+
+    label.className =
+        "search-label";
+
+    label.textContent =
+        "Search Results";
+
+    const status =
+        document.createElement(
+            "div"
+        );
+
+    status.className =
+        "search-status";
+
+    status.textContent =
+        message;
+
+    results.appendChild(label);
+    results.appendChild(status);
+}
+
+function renderSearchResults(users) {
+
+    const results =
+        document.getElementById(
+            "searchResults"
+        );
+
+    results.innerHTML = "";
+
+    results.classList.add(
+        "show"
+    );
+
+    const label =
+        document.createElement(
+            "div"
+        );
+
+    label.className =
+        "search-label";
+
+    label.textContent =
+        "Search Results";
+
+    results.appendChild(label);
+
+    if (
+        !users ||
+        users.length === 0
+    ) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "search-status";
+
+        empty.textContent =
+            "No registered ChatLink user found.";
+
+        results.appendChild(empty);
+
+        return;
+    }
+
+    users.forEach(
+        function(user) {
+
+            if (
+                !user ||
+                user.id === currentUser.id
+            ) {
+                return;
+            }
+
+            const displayName =
+                user.display_name ||
+                user.email ||
+                "ChatLink User";
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "search-user";
+
+            const avatar =
+                document.createElement(
+                    "div"
+                );
+
+            avatar.className =
+                "avatar";
+
+            avatar.textContent =
+                getInitials(
+                    displayName
+                );
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+            info.className =
+                "contact-info";
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "search-user-name";
+
+            name.textContent =
+                displayName;
+
+            const email =
+                document.createElement(
+                    "div"
+                );
+
+            email.className =
+                "search-user-email";
+
+            email.textContent =
+                user.email || "";
+
+            info.appendChild(name);
+            info.appendChild(email);
+
+            row.appendChild(avatar);
+            row.appendChild(info);
+
+            row.addEventListener(
+                "click",
+                async function() {
+
+                    document.getElementById(
+                        "searchInput"
+                    ).value = "";
+
+                    hideSearchResults();
+
+                    await openChat(
+                        user.id,
+                        displayName,
+                        null
+                    );
+                }
+            );
+
+            results.appendChild(row);
+        }
+    );
+}
+
+function hideSearchResults() {
+
+    searchRequestNumber++;
+
+    const results =
+        document.getElementById(
+            "searchResults"
+        );
+
+    results.innerHTML = "";
+
+    results.classList.remove(
+        "show"
+    );
+}
+
+function focusSearch() {
+
+    document.getElementById(
+        "searchInput"
+    ).focus();
+}
+
+/* =========================================================
+   RECENT CHATS
+========================================================= */
+
+async function fetchRecentMessages() {
+    const fullSelect = "id,created_at,sender_id,receiver_id,message,image_url,delivered_at,read_at";
+    let result = await chatDB
+        .from("messages")
+        .select(messageStatusColumnsAvailable ? fullSelect : "id,created_at,sender_id,receiver_id,message,image_url")
+        .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+        .order("created_at", { ascending: false });
+
+    if (result.error && messageStatusColumnsAvailable && /read_at|delivered_at|column/i.test(result.error.message || "")) {
+        messageStatusColumnsAvailable = false;
+        console.warn("Message status columns are not available yet; ChatLink will continue without unread/read status until the database migration is applied.");
+        result = await chatDB
+            .from("messages")
+            .select("id,created_at,sender_id,receiver_id,message,image_url")
+            .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+            .order("created_at", { ascending: false });
+    }
+
+    return result;
+}
+
+async function loadRecentChats() {
+    if (!currentUser) return;
+
+    const container = document.getElementById("recentChats");
+    container.innerHTML = '<div class="no-chats">Loading conversations...</div>';
+
+    const { data: messages, error } = await fetchRecentMessages();
+
+    if (error) {
+        console.error("Recent chats error:", error);
+        container.innerHTML = '<div class="no-chats">Could not load conversations.</div>';
+        return;
+    }
+
+    if (!messages || messages.length === 0) {
+        hasConversations = false;
+        container.innerHTML = '<div class="no-chats">No conversations yet.</div>';
+        if (!activeContactId && currentView === "chats") loadChatPeople();
+        return;
+    }
+
+    const latestByUser = new Map();
+    const unreadByUser = new Map();
+
+    messages.forEach(function(message) {
+        let otherUserId = null;
+        if (message.sender_id === currentUser.id) otherUserId = message.receiver_id;
+        else if (message.receiver_id === currentUser.id) otherUserId = message.sender_id;
+        if (!otherUserId) return;
+
+        if (!latestByUser.has(otherUserId)) latestByUser.set(otherUserId, message);
+
+        if (messageStatusColumnsAvailable && message.receiver_id === currentUser.id && !message.read_at) {
+            unreadByUser.set(otherUserId, (unreadByUser.get(otherUserId) || 0) + 1);
+        }
+    });
+
+    const userIds = Array.from(latestByUser.keys());
+    if (!userIds.length) {
+        hasConversations = false;
+        container.innerHTML = '<div class="no-chats">No conversations yet.</div>';
+        if (!activeContactId && currentView === "chats") loadChatPeople();
+        return;
+    }
+
+    hasConversations = true;
+    if (!activeContactId && currentView === "chats") loadChatPeople();
+
+    const { data: profiles, error: profileError } = await chatDB
+        .from("profiles")
+        .select("id,email,display_name")
+        .in("id", userIds);
+
+    if (profileError) {
+        console.error(profileError);
+        container.innerHTML = '<div class="no-chats">Could not load conversation profiles.</div>';
+        return;
+    }
+
+    const profileMap = new Map();
+    (profiles || []).forEach(profile => profileMap.set(profile.id, profile));
+    container.innerHTML = "";
+
+    userIds.forEach(function(userId) {
+        const profile = profileMap.get(userId);
+        if (!profile) return;
+        container.appendChild(createRecentContact(profile, latestByUser.get(userId), unreadByUser.get(userId) || 0));
+    });
+
+    if (!container.children.length) container.innerHTML = '<div class="no-chats">No conversations yet.</div>';
+}
+
+function createRecentContact(profile, latestMessage, unreadCount) {
+    const displayName = profile.display_name || profile.email || "ChatLink User";
+    const contact = document.createElement("div");
+    contact.className = "contact";
+    contact.dataset.contactId = profile.id;
+    contact.dataset.contact = displayName;
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = getInitials(displayName);
+
+    const info = document.createElement("div");
+    info.className = "contact-info";
+
+    const nameRow = document.createElement("div");
+    nameRow.className = "contact-name-row";
+
+    const name = document.createElement("div");
+    name.className = "contact-name";
+    name.textContent = displayName;
+    nameRow.appendChild(name);
+
+    if (unreadCount > 0) {
+        const badge = document.createElement("span");
+        badge.className = "unread-badge";
+        badge.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+        nameRow.appendChild(badge);
+    }
+
+    const preview = document.createElement("div");
+    preview.className = "preview";
+    if (latestMessage && latestMessage.message) preview.textContent = latestMessage.message;
+    else if (latestMessage && latestMessage.image_url) preview.textContent = "🖼️ Image";
+    else preview.textContent = profile.email || "";
+
+    info.appendChild(nameRow);
+    info.appendChild(preview);
+    contact.appendChild(avatar);
+    contact.appendChild(info);
+
+    contact.addEventListener("click", function() {
+        openChat(profile.id, displayName, contact);
+    });
+    return contact;
+}
+
+/* =========================================================
+   OPEN CHAT
+========================================================= */
+
+async function openChat(
+    contactId,
+    contactName,
+    element
+) {
+
+    if (
+        !currentUser ||
+        !contactId ||
+        !contactName
+    ) {
+        return;
+    }
+
+    currentView = "chats";
+
+    setActiveMenu(
+        "chatsMenu"
+    );
+
+    document
+        .getElementById("chatHeader")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("chatInputArea")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("chatHeaderActions")
+        .classList.remove("hidden");
+
+    activeContactId =
+        contactId;
+
+    activeContact =
+        contactName;
+
+    setupTypingChannel(contactId);
+    clearTypingIndicator();
+
+    document
+        .querySelectorAll(".contact")
+        .forEach(
+            function(contact) {
+
+                contact.classList.remove(
+                    "active"
+                );
+            }
+        );
+
+    if (element) {
+
+        element.classList.add(
+            "active"
+        );
+
+    } else {
+
+        const recent =
+            document.querySelector(
+                `.contact[data-contact-id="${contactId}"]`
+            );
+
+        if (recent) {
+
+            recent.classList.add(
+                "active"
+            );
+        }
+    }
+
+    document.getElementById(
+        "chatName"
+    ).textContent =
+        contactName;
+
+    document.getElementById(
+        "profileAvatar"
+    ).textContent =
+        getInitials(
+            contactName
+        );
+
+    document.getElementById(
+        "onlineStatus"
+    ).textContent =
+        "Chat selected";
+
+    document.getElementById(
+        "videoContactName"
+    ).textContent =
+        contactName;
+
+    document.getElementById(
+        "videoAvatar"
+    ).textContent =
+        getInitials(
+            contactName
+        );
+
+    document.getElementById(
+        "callStatus"
+    ).textContent =
+        "Ready to call";
+
+    const input =
+        document.getElementById(
+            "messageInput"
+        );
+
+    input.disabled = false;
+
+    input.placeholder =
+        "Message " +
+        contactName +
+        "...";
+
+    await loadConversation();
+    await markConversationRead(contactId);
+
+    input.focus();
+}
+
+/* =========================================================
+   LOAD CONVERSATION
+========================================================= */
+
+async function loadConversation() {
+
+    if (
+        !currentUser ||
+        !activeContactId
+    ) {
+
+        showEmptyChat();
+        return;
+    }
+
+    const requestedContactId =
+        activeContactId;
+
+    const messages =
+        document.getElementById(
+            "messages"
+        );
+
+    messages.innerHTML = `
+
+        <div class="empty-chat">
+            <p>Loading messages...</p>
+        </div>
+
+    `;
+
+    let conversationResult =
+        await chatDB
+            .from("messages")
+            .select(
+                messageStatusColumnsAvailable
+                    ? "id,created_at,sender_id,receiver_id,message,image_url,delivered_at,read_at"
+                    : "id,created_at,sender_id,receiver_id,message,image_url"
+            )
+            .or(
+                `and(sender_id.eq.${currentUser.id},receiver_id.eq.${requestedContactId}),and(sender_id.eq.${requestedContactId},receiver_id.eq.${currentUser.id})`
+            )
+            .order("created_at", { ascending: true });
+
+    if (conversationResult.error && messageStatusColumnsAvailable && /read_at|delivered_at|column/i.test(conversationResult.error.message || "")) {
+        messageStatusColumnsAvailable = false;
+        conversationResult = await chatDB
+            .from("messages")
+            .select("id,created_at,sender_id,receiver_id,message,image_url")
+            .or(
+                `and(sender_id.eq.${currentUser.id},receiver_id.eq.${requestedContactId}),and(sender_id.eq.${requestedContactId},receiver_id.eq.${currentUser.id})`
+            )
+            .order("created_at", { ascending: true });
+    }
+
+    const data = conversationResult.data;
+    const error = conversationResult.error;
+
+    if (
+        requestedContactId !==
+        activeContactId
+    ) {
+        return;
+    }
+
+    if (error) {
+
+        console.error(error);
+
+        messages.innerHTML = `
+
+            <div class="empty-chat">
+
+                <div class="empty-chat-icon">
+                    ⚠️
+                </div>
+
+                <h2>
+                    Messages unavailable
+                </h2>
+
+                <p>
+                    Could not load this conversation.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+    messages.innerHTML = "";
+
+    displayedMessageIds.clear();
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        messages.innerHTML = `
+
+            <div class="empty-chat">
+
+                <div class="empty-chat-icon">
+                    💬
+                </div>
+
+                <h2>
+                    ${escapeHTML(activeContact)}
+                </h2>
+
+                <p>
+                    No messages yet.
+                    Send the first message.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+    data.forEach(
+        function(row) {
+
+            displayDatabaseMessage(
+                row
+            );
+        }
+    );
+
+    scrollMessages();
+}
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById(
+            "messageInput"
+        );
+
+    const text =
+        input.value.trim();
+
+    if (!currentUser) {
+
+        alert(
+            "Please log in first."
+        );
+
+        return;
+    }
+
+    if (!activeContactId) {
+
+        alert(
+            "Please select a chat first."
+        );
+
+        return;
+    }
+
+    if (!text) {
+        return;
+    }
+
+    const receiverId =
+        activeContactId;
+
+    input.disabled = true;
+
+    const {
+        data,
+        error
+    } =
+        await chatDB
+            .from("messages")
+            .insert({
+
+                sender_id:
+                    currentUser.id,
+
+                receiver_id:
+                    receiverId,
+
+                message:
+                    text,
+
+                image_url:
+                    null
+
+            })
+            .select(
+                "id,created_at,sender_id,receiver_id,message,image_url"
+            )
+            .single();
+
+    input.disabled = false;
+
+    if (error) {
+
+        console.error(error);
+
+        alert(
+            "Message could not be sent."
+        );
+
+        input.focus();
+
+        return;
+    }
+
+    input.value = "";
+    broadcastTyping(false);
+
+    if (
+        data &&
+        receiverId ===
+        activeContactId
+    ) {
+
+        removeEmptyMessageState();
+
+        displayDatabaseMessage(
+            data
+        );
+
+        scrollMessages();
+    }
+
+    await loadRecentChats();
+
+    input.focus();
+}
+
+/* =========================================================
+   REALTIME MESSAGES / READ RECEIPTS / TYPING
+========================================================= */
+
+async function markPendingMessagesDelivered() {
+    if (!currentUser || !messageStatusColumnsAvailable) return;
+    const { error } = await chatDB
+        .from("messages")
+        .update({ delivered_at: new Date().toISOString() })
+        .eq("receiver_id", currentUser.id)
+        .is("delivered_at", null);
+    if (error) {
+        if (/delivered_at|column/i.test(error.message || "")) messageStatusColumnsAvailable = false;
+        else console.warn("Could not mark messages delivered:", error.message);
+    }
+}
+
+async function markMessageDelivered(messageId) {
+    if (!currentUser || !messageStatusColumnsAvailable || !messageId) return;
+    const { error } = await chatDB
+        .from("messages")
+        .update({ delivered_at: new Date().toISOString() })
+        .eq("id", messageId)
+        .eq("receiver_id", currentUser.id)
+        .is("delivered_at", null);
+    if (error && !/delivered_at|column/i.test(error.message || "")) console.warn("Delivery update failed:", error.message);
+}
+
+async function markConversationRead(contactId) {
+    if (!currentUser || !contactId || !messageStatusColumnsAvailable) return;
+    const now = new Date().toISOString();
+    const { error } = await chatDB
+        .from("messages")
+        .update({ delivered_at: now, read_at: now })
+        .eq("sender_id", contactId)
+        .eq("receiver_id", currentUser.id)
+        .is("read_at", null);
+
+    if (error) {
+        if (/read_at|delivered_at|column/i.test(error.message || "")) messageStatusColumnsAvailable = false;
+        else console.warn("Read-state update failed:", error.message);
+        return;
+    }
+    await loadRecentChats();
+}
+
+function subscribeToMessages() {
+    if (!currentUser) return;
+    if (messageChannel) chatDB.removeChannel(messageChannel);
+
+    messageChannel = chatDB
+        .channel("mgt-chatlink-messages-" + currentUser.id)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, async function(payload) {
+            const row = payload.new;
+            if (!row) return;
+            const belongsToUser = row.sender_id === currentUser.id || row.receiver_id === currentUser.id;
+            if (!belongsToUser) return;
+
+            if (row.receiver_id === currentUser.id) {
+                await markMessageDelivered(row.id);
+                if (activeContactId && row.sender_id === activeContactId && currentView === "chats") {
+                    await markConversationRead(activeContactId);
+                }
+            }
+
+            await loadRecentChats();
+            if (!activeContactId && currentView === "chats") await loadChatPeople();
+
+            if (!activeContactId) return;
+            const belongsToOpenChat =
+                (row.sender_id === currentUser.id && row.receiver_id === activeContactId) ||
+                (row.sender_id === activeContactId && row.receiver_id === currentUser.id);
+            if (!belongsToOpenChat) return;
+
+            removeEmptyMessageState();
+            displayDatabaseMessage(row);
+            scrollMessages();
+        })
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, function(payload) {
+            const row = payload.new;
+            if (!row || row.sender_id !== currentUser.id) return;
+            updateMessageStatusInDOM(row);
+        })
+        .subscribe();
+}
+
+function conversationChannelName(userA, userB) {
+    return "chatlink-typing-" + [userA, userB].sort().join("-");
+}
+
+function setupTypingChannel(contactId) {
+    if (!currentUser || !contactId) return;
+    if (typingChannel) {
+        chatDB.removeChannel(typingChannel);
+        typingChannel = null;
+    }
+
+    typingChannel = chatDB
+        .channel(conversationChannelName(currentUser.id, contactId))
+        .on("broadcast", { event: "typing" }, function(message) {
+            const payload = message && message.payload ? message.payload : {};
+            if (!payload.user_id || payload.user_id === currentUser.id || payload.user_id !== activeContactId) return;
+            if (payload.typing) showRemoteTyping();
+            else clearTypingIndicator();
+        })
+        .subscribe();
+}
+
+function broadcastTyping(isTyping) {
+    if (!typingChannel || !currentUser || !activeContactId) return;
+    typingChannel.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { user_id: currentUser.id, typing: Boolean(isTyping) }
+    }).catch(function(error) {
+        console.warn("Typing broadcast failed:", error);
+    });
+}
+
+function handleTypingInput() {
+    if (!activeContactId) return;
+    const now = Date.now();
+    if (now - lastTypingBroadcastAt > 800) {
+        lastTypingBroadcastAt = now;
+        broadcastTyping(true);
+    }
+    clearTimeout(typingStopTimer);
+    typingStopTimer = setTimeout(function() {
+        broadcastTyping(false);
+    }, 1400);
+}
+
+function showRemoteTyping() {
+    const indicator = document.getElementById("typingIndicator");
+    if (!indicator || !activeContact) return;
+    indicator.textContent = activeContact + " is typing...";
+    clearTimeout(remoteTypingTimer);
+    remoteTypingTimer = setTimeout(clearTypingIndicator, 2200);
+}
+
+function clearTypingIndicator() {
+    clearTimeout(remoteTypingTimer);
+    const indicator = document.getElementById("typingIndicator");
+    if (indicator) indicator.textContent = "";
+}
+
+function getMessageStatusText(row) {
+    if (!row || row.sender_id !== currentUser.id) return "";
+    if (row.read_at) return "✓✓ Read";
+    if (row.delivered_at) return "✓✓ Delivered";
+    return "✓ Sent";
+}
+
+function updateMessageStatusInDOM(row) {
+    if (!row || row.id === undefined || row.id === null) return;
+    const status = document.querySelector(`[data-message-id="${String(row.id)}"] .message-status`);
+    if (status) status.textContent = getMessageStatusText(row);
+}
+
+/* =========================================================
+   DISPLAY MESSAGE
+========================================================= */
+
+function displayDatabaseMessage(row) {
+
+    if (!row) {
+        return;
+    }
+
+    if (
+        row.id !== undefined &&
+        row.id !== null
+    ) {
+
+        const key =
+            String(row.id);
+
+        if (
+            displayedMessageIds.has(
+                key
+            )
+        ) {
+            return;
+        }
+
+        displayedMessageIds.add(
+            key
+        );
+    }
+
+    const messages =
+        document.getElementById(
+            "messages"
+        );
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.className =
+        "message " +
+        (
+            row.sender_id ===
+            currentUser.id
+                ? "sent"
+                : "received"
+        );
+
+    if (row.id !== undefined && row.id !== null) {
+        wrapper.dataset.messageId = String(row.id);
+    }
+
+    if (row.message) {
+
+        const text =
+            document.createElement(
+                "div"
+            );
+
+        text.textContent =
+            row.message;
+
+        wrapper.appendChild(
+            text
+        );
+    }
+
+    if (row.image_url) {
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.src =
+            row.image_url;
+
+        image.className =
+            "message-image";
+
+        wrapper.appendChild(
+            image
+        );
+    }
+
+    const time =
+        document.createElement(
+            "div"
+        );
+
+    time.style.fontSize =
+        "10px";
+
+    time.style.marginTop =
+        "5px";
+
+    time.style.opacity =
+        ".65";
+
+    const date =
+        row.created_at
+            ? new Date(
+                row.created_at
+              )
+            : new Date();
+
+    time.textContent =
+        date.toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+    wrapper.appendChild(time);
+
+    if (row.sender_id === currentUser.id) {
+        const status = document.createElement("div");
+        status.className = "message-status";
+        status.textContent = getMessageStatusText(row);
+        wrapper.appendChild(status);
+    }
+
+    messages.appendChild(wrapper);
+}
+
+function removeEmptyMessageState() {
+
+    const empty =
+        document.querySelector(
+            "#messages .empty-chat"
+        );
+
+    if (empty) {
+
+        document.getElementById(
+            "messages"
+        ).innerHTML = "";
+
+        displayedMessageIds.clear();
+    }
+}
+
+/* =========================================================
+   EMPTY CHAT
+========================================================= */
+
+function showEmptyChat() {
+
+    displayedMessageIds.clear();
+
+    const messages = document.getElementById("messages");
+
+    if (hasConversations) {
+        messages.innerHTML = `
+            <div class="empty-chat">
+                <div class="empty-chat-icon">💬</div>
+                <h2>Welcome back 👋</h2>
+                <div class="empty-powered-by">Powered by MGT</div>
+                <p>Choose a recent conversation from the sidebar to continue chatting.</p>
+            </div>
+        `;
+        return;
+    }
+
+    messages.innerHTML = `
+        <div class="empty-chat">
+            <div class="empty-chat-icon">💬</div>
+            <h2>No conversations yet</h2>
+            <div class="empty-powered-by">Powered by MGT</div>
+            <p>Start your first conversation</p>
+            <div class="home-actions">
+                <button class="home-action-button" type="button" onclick="findSomeoneFromHome()">🔍 Find Someone</button>
+            </div>
+        </div>
+    `;
+}
+
+function findSomeoneFromHome() {
+    const search = document.getElementById("searchInput");
+    if (!search) return;
+    search.focus();
+    search.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+
+function resetChat() {
+
+    currentView = "chats";
+
+    activeContact = null;
+    activeContactId = null;
+
+    displayedMessageIds.clear();
+
+    document
+        .getElementById("chatHeader")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("chatInputArea")
+        .classList.add("hidden");
+
+    clearTypingIndicator();
+    if (typingChannel) {
+        chatDB.removeChannel(typingChannel);
+        typingChannel = null;
+    }
+
+    document.getElementById(
+        "chatName"
+    ).textContent =
+        "ChatLink Home";
+
+    document.getElementById(
+        "profileAvatar"
+    ).textContent =
+        "💬";
+
+    document
+        .getElementById("chatHeaderActions")
+        .classList.add("hidden");
+
+    document.getElementById(
+        "onlineStatus"
+    ).textContent =
+        "";
+
+    document.getElementById(
+        "videoContactName"
+    ).textContent =
+        "ChatLink";
+
+    document.getElementById(
+        "videoAvatar"
+    ).textContent =
+        "?";
+
+    document.getElementById(
+        "callStatus"
+    ).textContent =
+        "Select a contact";
+
+    const input =
+        document.getElementById(
+            "messageInput"
+        );
+
+    input.value = "";
+    input.disabled = true;
+
+    input.placeholder =
+        "Select a chat first...";
+
+    document
+        .querySelectorAll(".contact")
+        .forEach(
+            function(contact) {
+
+                contact.classList.remove(
+                    "active"
+                );
+            }
+        );
+
+    showEmptyChat();
+}
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function getInitials(name) {
+
+    if (!name) {
+        return "?";
+    }
+
+    const words =
+        name.trim().split(/\s+/);
+
+    if (
+        words.length === 1
+    ) {
+
+        return words[0]
+            .substring(0,2)
+            .toUpperCase();
+    }
+
+    return (
+        words[0].charAt(0) +
+        words[1].charAt(0)
+    ).toUpperCase();
+}
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        text || "";
+
+    return div.innerHTML;
+}
+
+function scrollMessages() {
+
+    const messages =
+        document.getElementById(
+            "messages"
+        );
+
+    messages.scrollTop =
+        messages.scrollHeight;
+}
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+function insertEmoji() {
+
+    if (!activeContactId) {
+
+        alert(
+            "Please select a chat first."
+        );
+
+        return;
+    }
+
+    const input =
+        document.getElementById(
+            "messageInput"
+        );
+
+    input.value += "😊";
+
+    input.focus();
+}
+
+/* =========================================================
+   IMAGES
+========================================================= */
+
+function openImagePicker() {
+
+    if (!activeContactId) {
+
+        alert(
+            "Please select a chat first."
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "imageInput"
+    ).click();
+}
+
+function sendImage(event) {
+
+    const file =
+        event.target.files[0];
+
+    event.target.value = "";
+
+    if (!file) {
+        return;
+    }
+
+    if (
+        !file.type.startsWith(
+            "image/"
+        )
+    ) {
+
+        alert(
+            "Please choose an image."
+        );
+
+        return;
+    }
+
+    alert(
+        "Image upload will work after ChatLink Storage is configured."
+    );
+}
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+async function startVideo() {
+
+    if (!activeContactId) {
+
+        alert(
+            "Please select a contact first."
+        );
+
+        return;
+    }
+
+    showCallPanel();
+
+    try {
+
+        localStream =
+            await navigator
+                .mediaDevices
+                .getUserMedia({
+
+                    video: true,
+                    audio: true
+
+                });
+
+        document.getElementById(
+            "localVideo"
+        ).srcObject =
+            localStream;
+
+        document
+            .getElementById(
+                "placeholder"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+        document.getElementById(
+            "callStatus"
+        ).textContent =
+            "Camera started";
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Camera or microphone permission was denied."
+        );
+
+        hideCallPanel();
+    }
+}
+
+async function startVoiceCall() {
+
+    if (!activeContactId) {
+        alert("Please select a contact first.");
+        return;
+    }
+
+    showCallPanel();
+
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+            video: false,
+            audio: true
+        });
+
+        document.getElementById("localVideo").srcObject = null;
+        document.getElementById("placeholder").classList.remove("hidden");
+        document.getElementById("callStatus").textContent = "Voice call started";
+    } catch (error) {
+        console.error(error);
+        alert("Microphone permission was denied.");
+        hideCallPanel();
+    }
+}
+
+function showCallPanel() {
+    document.querySelector(".app").classList.add("call-open");
+}
+
+function hideCallPanel() {
+    document.querySelector(".app").classList.remove("call-open");
+}
+
+function toggleMic() {
+
+    if (!localStream) {
+        return;
+    }
+
+    micEnabled =
+        !micEnabled;
+
+    localStream
+        .getAudioTracks()
+        .forEach(
+            function(track) {
+
+                track.enabled =
+                    micEnabled;
+            }
+        );
+
+    document.getElementById(
+        "micButton"
+    ).textContent =
+        micEnabled
+            ? "🎤"
+            : "🔇";
+}
+
+function toggleCamera() {
+
+    if (!localStream) {
+        return;
+    }
+
+    cameraEnabled =
+        !cameraEnabled;
+
+    localStream
+        .getVideoTracks()
+        .forEach(
+            function(track) {
+
+                track.enabled =
+                    cameraEnabled;
+            }
+        );
+
+    document.getElementById(
+        "cameraButton"
+    ).textContent =
+        cameraEnabled
+            ? "📹"
+            : "🚫";
+}
+
+async function shareScreen() {
+
+    if (!activeContactId) {
+
+        alert(
+            "Please select a contact first."
+        );
+
+        return;
+    }
+
+    try {
+
+        const screenStream =
+            await navigator
+                .mediaDevices
+                .getDisplayMedia({
+                    video: true
+                });
+
+        const localVideo =
+            document.getElementById(
+                "localVideo"
+            );
+
+        localVideo.srcObject =
+            screenStream;
+
+        const screenTrack =
+            screenStream
+                .getVideoTracks()[0];
+
+        screenTrack.onended =
+            function() {
+
+                localVideo.srcObject =
+                    localStream || null;
+            };
+
+    } catch (error) {
+
+        console.error(error);
+    }
+}
+
+function endCall() {
+
+    if (localStream) {
+
+        localStream
+            .getTracks()
+            .forEach(
+                function(track) {
+
+                    track.stop();
+                }
+            );
+
+        localStream = null;
+    }
+
+    document.getElementById(
+        "localVideo"
+    ).srcObject =
+        null;
+
+    document
+        .getElementById(
+            "placeholder"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+    document.getElementById(
+        "callStatus"
+    ).textContent =
+        activeContact
+            ? "Call ended"
+            : "Select a contact";
+
+    micEnabled = true;
+    cameraEnabled = true;
+
+    document.getElementById(
+        "micButton"
+    ).textContent =
+        "🎤";
+
+    document.getElementById(
+        "cameraButton"
+    ).textContent =
+        "📹";
+
+    hideCallPanel();
+}
+
+/* =========================================================
+   AUTH CHANGES
+========================================================= */
+
+chatDB.auth.onAuthStateChange(
+    function(event, session) {
+        if (event === "SIGNED_OUT") {
+            currentUser = null;
+            return;
+        }
+
+        if (event === "SIGNED_IN" && session && session.user) {
+            currentUser = session.user;
+
+            // If Supabase has authenticated the user, never keep the auth overlay up.
+            enterChatLink();
+
+            // Do not await database/profile work inside the auth callback.
+            // It loads independently after the main interface is already available.
+            setTimeout(function() {
+                initializeLoggedInFeatures();
+            }, 0);
+        }
+    }
+);
+
+/* =========================================================
+   START
+========================================================= */
+
+window.addEventListener(
+    "DOMContentLoaded",
+    function() {
+        resetChat();
+
+        const messageInput = document.getElementById("messageInput");
+        if (messageInput) messageInput.addEventListener("input", handleTypingInput);
+
+        // Session restoration is independent of other secondary features.
+        restoreSession().catch(error => {
+            console.error("Session restore startup error:", error);
+        });
+    }
+);
+
+</script>
+
+</body>
+</html>
